@@ -1,0 +1,25 @@
+<html>
+	<head>
+		<script type='text/javascript' src='jsSHA/src/sha1.js'></script>
+		<script type='text/javascript' src='passy.js'></script>
+		<script type='text/javascript'>
+			function UpdatePassy()
+			{
+				var site = document.getElementById('site').value;
+				var password = document.getElementById('password').value;
+				document.getElementById('result').value = passy(site,password)[0];
+			}
+		</script>
+	</head>
+	<body>
+		<form>
+			Site Name:<br/>
+			<input type='text' id='site' onkeydown='UpdatePassy()' onkeyup='UpdatePassy()' onchange='UpdatePassy()'><br/>
+			Secret Passphrase:<br/>
+			<input type='password' id='password' onkeydown='UpdatePassy()' onkeyup='UpdatePassy()' onchange='UpdatePassy()'><br/>
+			<hr/>
+			Site Password:<br/>
+			<input type='text' id='result' readonly onfocus='this.select()' onclick='this.select()' ondblclick='this.select()'>
+		</form>
+	</body>
+</html>
