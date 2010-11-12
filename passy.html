@@ -1,13 +1,35 @@
 <html>
 	<head>
-		<script type='text/javascript' src='jsSHA/src/sha1.js'></script>
-		<script type='text/javascript' src='passy.js'></script>
+		<script type='text/javascript' src='passytiny.js'></script>
 		<script type='text/javascript'>
+			var password_timer=0;
+			function ClearPassword()
+			{
+				// clear password field and force an update
+				document.getElementById('password').value = "";
+				document.getElementById('password').focus();
+				UpdatePassy();
+			}
 			function UpdatePassy()
 			{
+				// do password update
 				var site = document.getElementById('site').value;
 				var password = document.getElementById('password').value;
-				document.getElementById('result').value = passy(site,password)[0];
+				if ( site == "" || password == "" )
+				{
+					document.getElementById('result').value = "";
+				}
+				else
+				{
+					document.getElementById('result').value = passy(site,password)[0];
+				}
+
+				// set timer to clear password field after a minute
+				if ( password_timer != 0 )
+				{
+					clearTimeout(password_timer);
+				}
+				password_timer = setTimeout('ClearPassword()',60000);
 			}
 		</script>
 	</head>

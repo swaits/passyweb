@@ -1,0 +1,59 @@
+<html>
+	<head>
+
+		<script type='text/javascript'>
+(function(){var q=function(a){var c=[],d=a.length*8,b;for(b=0;b<d;b+=8)c[b>>5]|=(a.charCodeAt(b/8)&255)<<24-b%32;return c},r=function(a){var c=[],d=a.length,b,e;for(b=0;b<d;b+=2){e=parseInt(a.substr(b,2),16);if(isNaN(e))return"INVALID HEX STRING";else c[b>>3]|=e<<24-4*(b%8)}return c},m=function(a){var c="",d=a.length*4,b,e;for(b=0;b<d;b+=1){e=a[b>>2]>>(3-b%4)*8;c+="0123456789abcdef".charAt(e>>4&15)+"0123456789abcdef".charAt(e&15)}return c},n=function(a){var c="",d=a.length*4,b,e,j;for(b=0;b<d;b+=
+3){j=(a[b>>2]>>8*(3-b%4)&255)<<16|(a[b+1>>2]>>8*(3-(b+1)%4)&255)<<8|a[b+2>>2]>>8*(3-(b+2)%4)&255;for(e=0;e<4;e+=1)c+=b*8+e*6<=a.length*32?"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt(j>>6*(3-e)&63):""}return c},f=function(a,c){return a<<c|a>>>32-c},o=function(a,c){var d=(a&65535)+(c&65535);return((a>>>16)+(c>>>16)+(d>>>16)&65535)<<16|d&65535},k=function(a,c,d,b,e){var j=(a&65535)+(c&65535)+(d&65535)+(b&65535)+(e&65535);return((a>>>16)+(c>>>16)+(d>>>16)+(b>>>16)+(e>>>16)+
+(j>>>16)&65535)<<16|j&65535},u=function(a,c){var d=[],b,e,j,l,p,v,s,g,w,h=[1732584193,4023233417,2562383102,271733878,3285377520],t=[1518500249,1518500249,1518500249,1518500249,1518500249,1518500249,1518500249,1518500249,1518500249,1518500249,1518500249,1518500249,1518500249,1518500249,1518500249,1518500249,1518500249,1518500249,1518500249,1518500249,1859775393,1859775393,1859775393,1859775393,1859775393,1859775393,1859775393,1859775393,1859775393,1859775393,1859775393,1859775393,1859775393,1859775393,
+1859775393,1859775393,1859775393,1859775393,1859775393,1859775393,2400959708,2400959708,2400959708,2400959708,2400959708,2400959708,2400959708,2400959708,2400959708,2400959708,2400959708,2400959708,2400959708,2400959708,2400959708,2400959708,2400959708,2400959708,2400959708,2400959708,3395469782,3395469782,3395469782,3395469782,3395469782,3395469782,3395469782,3395469782,3395469782,3395469782,3395469782,3395469782,3395469782,3395469782,3395469782,3395469782,3395469782,3395469782,3395469782,3395469782];
+a[c>>5]|=128<<24-c%32;a[(c+65>>9<<4)+15]=c;w=a.length;for(s=0;s<w;s+=16){b=h[0];e=h[1];j=h[2];l=h[3];p=h[4];for(g=0;g<80;g+=1){d[g]=g<16?a[g+s]:f(d[g-3]^d[g-8]^d[g-14]^d[g-16],1);v=g<20?k(f(b,5),e&j^~e&l,p,t[g],d[g]):g<40?k(f(b,5),e^j^l,p,t[g],d[g]):g<60?k(f(b,5),e&j^e&l^j&l,p,t[g],d[g]):k(f(b,5),e^j^l,p,t[g],d[g]);p=l;l=j;j=f(e,30);e=b;b=v}h[0]=o(b,h[0]);h[1]=o(e,h[1]);h[2]=o(j,h[2]);h[3]=o(l,h[3]);h[4]=o(p,h[4])}return h},x=function(a,c){this.strToHash=this.strBinLen=this.sha1=null;if("HEX"===c){if(0!==
+a.length%2)return"TEXT MUST BE IN BYTE INCREMENTS";this.strBinLen=a.length*4;this.strToHash=r(a)}else if("ASCII"===c||"undefined"===typeof c){this.strBinLen=a.length*8;this.strToHash=q(a)}else return"UNKNOWN TEXT INPUT TYPE"};x.prototype={getHash:function(a){var c=null,d=this.strToHash.slice();switch(a){case "HEX":c=m;break;case "B64":c=n;break;default:return"FORMAT NOT RECOGNIZED"}if(null===this.sha1)this.sha1=u(d,this.strBinLen);return c(this.sha1)},getHMAC:function(a,c,d){var b;b=[];var e=[];switch(d){case "HEX":d=
+m;break;case "B64":d=n;break;default:return"FORMAT NOT RECOGNIZED"}if("HEX"===c){if(0!==a.length%2)return"KEY MUST BE IN BYTE INCREMENTS";c=r(a);a=a.length*4}else if("ASCII"===c){c=q(a);a=a.length*8}else return"UNKNOWN KEY INPUT TYPE";if(64<a/8){c=u(c,a);c[15]&=4294967040}else if(64>a/8)c[15]&=4294967040;for(a=0;a<=15;a+=1){b[a]=c[a]^909522486;e[a]=c[a]^1549556828}b=u(b.concat(this.strToHash),512+this.strBinLen);b=u(e.concat(b),672);return d(b)}};window.jsSHA=x})();
+var passy=function(q,r){var m=function(f){var o={"1":"!","2":"@","3":"#","4":"$","5":"%","6":"^","7":"&","8":"*","9":"(","0":")"},k=true;for(i=0;i<f.length;++i)if(/[0-9]/.test(f[i])){if(k)f=f.slice(0,i)+o[f[i]]+f.slice(i+1,f.length);k=!k}k=true;for(i=0;i<f.length;++i)if(/[a-f]/i.test(f[i])){f=f.slice(0,i)+(k?f[i].toUpperCase():f[i].toLowerCase())+f.slice(i+1,f.length);k=!k}return f},n=(new jsSHA(q.toLowerCase(),"ASCII")).getHMAC(r,"ASCII","HEX");return[m(n.slice(0,10)),m(n.slice(10,20)),m(n.slice(20,
+30)),m(n.slice(30,40))]};
+		</script>
+
+		<script type='text/javascript'>
+			var password_timer=0;
+			function ClearPassword()
+			{
+				// clear password field and force an update
+				document.getElementById('password').value = "";
+				document.getElementById('password').focus();
+				UpdatePassy();
+			}
+			function UpdatePassy()
+			{
+				// do password update
+				var site = document.getElementById('site').value;
+				var password = document.getElementById('password').value;
+				if ( site == "" || password == "" )
+				{
+					document.getElementById('result').value = "";
+				}
+				else
+				{
+					document.getElementById('result').value = passy(site,password)[0];
+				}
+
+				// set timer to clear password field after a minute
+				if ( password_timer != 0 )
+				{
+					clearTimeout(password_timer);
+				}
+				password_timer = setTimeout('ClearPassword()',60000);
+			}
+		</script>
+	</head>
+	<body>
+		<form>
+			Site Name:<br/>
+			<input type='text' id='site' onkeydown='UpdatePassy()' onkeyup='UpdatePassy()' onchange='UpdatePassy()'><br/>
+			Secret Passphrase:<br/>
+			<input type='password' id='password' onkeydown='UpdatePassy()' onkeyup='UpdatePassy()' onchange='UpdatePassy()'><br/>
+			<hr/>
+			Site Password:<br/>
+			<input type='text' id='result' readonly onfocus='this.select()' onclick='this.select()' ondblclick='this.select()'>
+		</form>
+	</body>
+</html>
