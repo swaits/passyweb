@@ -99,9 +99,14 @@ var passy = function(text,secret)
 	var hmac = new jsSHA(text.toLowerCase(), "ASCII").getHMAC(secret, "ASCII", "HEX");
 
 	// split into four 10 character strings and "passify", and return the array
+	// include the unpassified versions afterward
 	return [
 		passify(hmac.slice( 0,10)),
 		passify(hmac.slice(10,20)),
 		passify(hmac.slice(20,30)),
-		passify(hmac.slice(30,40))];
+		passify(hmac.slice(30,40)),
+		hmac.slice( 0,10),
+		hmac.slice(10,20),
+		hmac.slice(20,30),
+		hmac.slice(30,40)];
 }
