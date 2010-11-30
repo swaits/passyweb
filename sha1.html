@@ -4,11 +4,16 @@
 	
 		<title>Sha1</title>
 		<script src='sha1.js'></script>
+
+		<script type="text/javascript" charset="utf-8">
+			function run()
+			{
+				document.getElementById('result').innerHTML = sha1("The quick brown fox jumps over the lazy dog");
+			}
+		</script>
 		
 	</head>
-	<body>
-
-		blah
-		
+	<body onload="run()">
+		<div id="result">Calculating...</div>
 	</body>
 </html>

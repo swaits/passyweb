@@ -79,7 +79,3 @@ function sha1(text)
 	
 	return message;
 }
-
-str_to_bytes("A\u1242B\u4123C"); // [65, 18, 66, 66, 65, 35, 67]
-
-sha1("The quick brown fox jumps over the lazy dog"); // 2fd4e1c6 7a2d28fc ed849ee1 bb76e739 1b93eb12
