@@ -8,7 +8,11 @@
 		<script type="text/javascript" charset="utf-8">
 			function run()
 			{
-				document.getElementById('result').innerHTML = sha1("The quick brown fox jumps over the lazy dog");
+				sha1_profile();
+				if ( sha1_verify() )
+					document.getElementById('result').innerHTML = sha1("abcde");
+				else
+					document.getElementById('result').innerHTML = "Error!!!";
 			}
 		</script>
 		
