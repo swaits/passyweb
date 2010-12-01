@@ -1,5 +1,6 @@
 <html>
 	<head>
+		<script type='text/javascript' src='sha1.js'></script>
 		<script type='text/javascript' src='passy.js'></script>
 		<script type='text/javascript'>
 			var password_timer=0;
@@ -8,16 +9,16 @@
 				// hack to wait for onmouseup event to pass
 				setTimeout(function(){target.select()},5); // 5ms
 			}
-			function ClearPassword()
+			function clear_password()
 			{
 				// clear password field and set focus so we're ready to receive password again
 				document.getElementById('password').value = "";
 				document.getElementById('password').focus();
 
 				// force an update to clear the generated password (result) field as well
-				UpdatePassy();
+				update_passy();
 			}
-			function UpdatePassy()
+			function update_passy()
 			{
 				// do password update
 				var site = document.getElementById('site').value;
@@ -38,16 +39,16 @@
 				{
 					clearTimeout(password_timer);
 				}
-				password_timer = setTimeout('ClearPassword()',60000);
+				password_timer = setTimeout('clear_password()',60000);
 			}
 		</script>
 	</head>
 	<body>
 		<form>
 			Site Name:<br/>
-			<input type='text' id='site' onkeyup='UpdatePassy()'><br/>
+			<input type='text' id='site' onkeyup='update_passy()'><br/>
 			Secret Passphrase:<br/>
-			<input type='password' id='password' onkeyup='UpdatePassy()'><br/>
+			<input type='password' id='password' onkeyup='update_passy()'><br/>
 			<hr/>
 			Site Password:<br/>
 			<input type='text' id='result' readonly onfocus='delayed_select(this)'>
