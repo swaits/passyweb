@@ -8,9 +8,8 @@
 		<script type="text/javascript" charset="utf-8">
 			function run()
 			{
-				sha1_profile();
-				if ( sha1_verify() && hmac_verify() )
-					document.getElementById('result').innerHTML = sha1_string("abcde");
+				if ( SHA1.test() )
+					document.getElementById('result').innerHTML = SHA1.hash("abcde");
 				else
 					document.getElementById('result').innerHTML = "Error!!!";
 			}
