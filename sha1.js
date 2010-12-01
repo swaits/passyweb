@@ -36,9 +36,9 @@ function num_to_big_endian_64(num)
 function bytes_to_big_endian_32(array)
 {
 	var result = [];
-	for (var i = 0; i < (array.length/4); i++)
+	for (var i = 0; i < array.length; i += 4)
 	{
-		result.push((array[i*4+0] << 24) | (array[i*4+1] << 16) | (array[i*4+2] <<  8) | array[i*4+3]);
+		result.push((array[i] << 24) | (array[i+1] << 16) | (array[i+2] <<  8) | array[i+3]);
 	};
 	return result;
 }
@@ -64,10 +64,12 @@ function to_hex(x)
 		);
 }
 
-function sha1(text)
+function sha1(byte_array)
 {
-	// get text into byte array
-	var message              = str_to_bytes(text);
+	// copy array
+	var message = byte_array.slice();
+
+	// store message size for later use
 	var message_size_in_bits = message.length * 8;
 
 	// Initialize variables:
@@ -111,8 +113,7 @@ function sha1(text)
 		var c = h2;
 		var d = h3;
 		var e = h4;
-		var f = 0;
-		var k = 0;
+		var f, k, temp;
 
 		// Main loop:
 		for (var i = 0; i < 80; i++)
@@ -138,7 +139,7 @@ function sha1(text)
 				k = 0xca62c1d6;
 			}
 			
-			var temp = (rol(a,5) + f + e + k + w[i]) & 0xffffffff;
+			temp = (rol(a,5) + f + e + k + w[i]) & 0xffffffff;
 			e = d;
 			d = c;
 			c = rol(b,30);
@@ -158,11 +159,20 @@ function sha1(text)
 	return to_hex(h0) + to_hex(h1) + to_hex(h2) + to_hex(h3) + to_hex(h4);
 }
 
+function sha1_string(str)
+{
+	// get text into byte array
+	var message = str_to_bytes(str);
+
+	// perform SHA-1
+	return sha1(message);
+}
+
 function sha1_verify()
 {
 	return Boolean(
-		(sha1("The quick brown fox jumps over the lazy dog") == "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12") &&
-		(sha1("")                                            == "da39a3ee5e6b4b0d3255bfef95601890afd80709")
+		(sha1_string("The quick brown fox jumps over the lazy dog") == "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12") &&
+		(sha1_string("")                                            == "da39a3ee5e6b4b0d3255bfef95601890afd80709")
 		);
 }
 
@@ -170,6 +180,6 @@ function sha1_profile()
 {
 	var text = "blah";
 	for (var i = 0; i < 250; i++) {
-		text = sha1(text);
+		text = sha1_string(text);
 	};
 }
