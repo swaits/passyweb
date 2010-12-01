@@ -43,11 +43,6 @@ function bytes_to_big_endian_32(array)
 	return result;
 }
 
-function rol(x,n)
-{
-	return (x << n) | (x >>> (32 - n));
-}
-
 function to_hex(x)
 {
 	var h = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"];
@@ -101,48 +96,42 @@ function sha1(byte_array)
 		// break chunk into sixteen 32-bit big-endian words w[i], 0 <= i <= 15
 		var w = bytes_to_big_endian_32(message.slice(i_chunk*64,(i_chunk*64)+64));
 
-		// Extend the sixteen 32-bit words into eighty 32-bit words:
-		for (var i = 16; i < 80; i++)
-		{
-			w.push(rol((w[i-3] ^ w[i-8] ^ w[i-14] ^ w[i-16]), 1));
-		};
-
 		// Initialize hash value for this chunk:
-		var a = h0;
-		var b = h1;
-		var c = h2;
-		var d = h3;
-		var e = h4;
-		var f, k, temp;
+		var a = h0, b = h1, c = h2, d = h3, e = h4, s, temp;
 
 		// Main loop:
 		for (var i = 0; i < 80; i++)
 		{
+			s = i & 0xf;
+			if (i >= 16)
+			{
+				var _w = w[(s + 13) & 0xf] ^ w[(s + 8) & 0xf] ^ w[(s + 2) & 0xf] ^ w[s];
+				w[s] = (_w << 1) | (_w >>> 31);
+			}
 			if (i < 20)
 			{
-				f = d ^ (b & (c ^ d));
-				k = 0x5a827999;
+				// f =                            ( d ^ (b & (c ^ d)) )
+				temp = (((a << 5) | (a >>> 27)) + ( d ^ (b & (c ^ d)) ) + e + 0x5a827999 + w[s]) & 0xffffffff;
 			}
 			else if (i < 40)
 			{
-				f = b ^ c ^ d;
-				k = 0x6ed9eba1;
+				// f =                            ( b ^ c ^ d )
+				temp = (((a << 5) | (a >>> 27)) + ( b ^ c ^ d ) + e + 0x6ed9eba1 + w[s]) & 0xffffffff;
 			}
 			else if (i < 60)
 			{
-				f = (b & c) | (b & d) | (c & d);
-				k = 0x8f1bbcdc;
+				// f =                            ( (b & c) | (b & d) | (c & d) )
+				temp = (((a << 5) | (a >>> 27)) + ( (b & c) | (b & d) | (c & d) ) + e + 0x8f1bbcdc + w[s]) & 0xffffffff;
 			}
 			else
 			{
-				f = b ^ c ^ d;
-				k = 0xca62c1d6;
+				// f =                            ( b ^ c ^ d )
+				temp = (((a << 5) | (a >>> 27)) + ( b ^ c ^ d ) + e + 0xca62c1d6 + w[s]) & 0xffffffff;
 			}
 			
-			temp = (rol(a,5) + f + e + k + w[i]) & 0xffffffff;
 			e = d;
 			d = c;
-			c = rol(b,30);
+			c = (b << 30) | (b >>> 2);
 			b = a;
 			a = temp;
 		};
@@ -156,8 +145,8 @@ function sha1(byte_array)
 	};
 
 	// Produce the final hash value (big-endian):
-	return to_hex(h0) + to_hex(h1) + to_hex(h2) + to_hex(h3) + to_hex(h4);
-}
+	return [h0, h1, h2, h3, h4];
+};
 
 function sha1_string(str)
 {
@@ -165,8 +154,11 @@ function sha1_string(str)
 	var message = str_to_bytes(str);
 
 	// perform SHA-1
-	return sha1(message);
-}
+	h = sha1(message);
+
+	// convert to string
+	return to_hex(h[0]) + to_hex(h[1]) + to_hex(h[2]) + to_hex(h[3]) + to_hex(h[4]);
+};
 
 function sha1_verify()
 {
@@ -174,12 +166,12 @@ function sha1_verify()
 		(sha1_string("The quick brown fox jumps over the lazy dog") == "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12") &&
 		(sha1_string("")                                            == "da39a3ee5e6b4b0d3255bfef95601890afd80709")
 		);
-}
+};
 
 function sha1_profile()
 {
-	var text = "blah";
-	for (var i = 0; i < 250; i++) {
-		text = sha1_string(text);
+	var data = [1,2,3,4,5,6];
+	for (var i = 0; i < 5000; i++) {
+		sha1(data);
 	};
-}
+};
