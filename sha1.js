@@ -43,20 +43,16 @@ function bytes_to_big_endian_32(array)
 	return result;
 }
 
-function to_hex(x)
+function bytes_to_hex(x)
 {
 	var h = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"];
-	
-	return String( 
-		h[(x & 0xf0000000) >>> 28] + 
-		h[(x & 0x0f000000) >>> 24] + 
-		h[(x & 0x00f00000) >>> 20] + 
-		h[(x & 0x000f0000) >>> 16] + 
-		h[(x & 0x0000f000) >>> 12] + 
-		h[(x & 0x00000f00) >>>  8] + 
-		h[(x & 0x000000f0) >>>  4] + 
-		h[(x & 0x0000000f) >>>  0]
-		);
+	var result = "";
+
+	for (var i = 0; i < x.length; i++) {
+		result += (h[x[i] >>> 4]);
+		result += (h[x[i] & 0xf]);
+	}
+	return result;
 }
 
 function sha1(byte_array)
@@ -110,28 +106,28 @@ function sha1(byte_array)
 			}
 			if (i < 20)
 			{
-				// f =                            ( d ^ (b & (c ^ d)) )
+				//     _______rol(a,5)_________ + _________f[i]________ + e + ___k[i]___ + w[s]
 				temp = (((a << 5) | (a >>> 27)) + ( d ^ (b & (c ^ d)) ) + e + 0x5a827999 + w[s]) & 0xffffffff;
 			}
 			else if (i < 40)
 			{
-				// f =                            ( b ^ c ^ d )
+				//     _______rol(a,5)_________ + _____f[i]____ + e + ___k[i]___ + w[s]
 				temp = (((a << 5) | (a >>> 27)) + ( b ^ c ^ d ) + e + 0x6ed9eba1 + w[s]) & 0xffffffff;
 			}
 			else if (i < 60)
 			{
-				// f =                            ( (b & c) | (b & d) | (c & d) )
+				//     _______rol(a,5)_________ + ___________f[i]________________ + e + ___k[i]___ + w[s]
 				temp = (((a << 5) | (a >>> 27)) + ( (b & c) | (b & d) | (c & d) ) + e + 0x8f1bbcdc + w[s]) & 0xffffffff;
 			}
 			else
 			{
-				// f =                            ( b ^ c ^ d )
+				//     ________rol(a,5)_________ + _____f[i]____ + e + ___k[i]___ + w[s]
 				temp = (((a << 5) | (a >>> 27)) + ( b ^ c ^ d ) + e + 0xca62c1d6 + w[s]) & 0xffffffff;
 			}
 			
 			e = d;
 			d = c;
-			c = (b << 30) | (b >>> 2);
+			c = (b << 30) | (b >>> 2); // c = rol(b,30)
 			b = a;
 			a = temp;
 		};
@@ -145,7 +141,13 @@ function sha1(byte_array)
 	};
 
 	// Produce the final hash value (big-endian):
-	return [h0, h1, h2, h3, h4];
+	return [
+		(h0 >>> 24) & 0xff,  (h0 >>> 16) & 0xff,  (h0 >>> 8) & 0xff,  h0 & 0xff, 
+		(h1 >>> 24) & 0xff,  (h1 >>> 16) & 0xff,  (h1 >>> 8) & 0xff,  h1 & 0xff, 
+		(h2 >>> 24) & 0xff,  (h2 >>> 16) & 0xff,  (h2 >>> 8) & 0xff,  h2 & 0xff, 
+		(h3 >>> 24) & 0xff,  (h3 >>> 16) & 0xff,  (h3 >>> 8) & 0xff,  h3 & 0xff, 
+		(h4 >>> 24) & 0xff,  (h4 >>> 16) & 0xff,  (h4 >>> 8) & 0xff,  h4 & 0xff
+		]; // note: returning this as a byte array is quite expensive!
 };
 
 function sha1_string(str)
@@ -157,7 +159,7 @@ function sha1_string(str)
 	h = sha1(message);
 
 	// convert to string
-	return to_hex(h[0]) + to_hex(h[1]) + to_hex(h[2]) + to_hex(h[3]) + to_hex(h[4]);
+	return bytes_to_hex(sha1(message));
 };
 
 function sha1_verify()
@@ -175,3 +177,38 @@ function sha1_profile()
 		sha1(data);
 	};
 };
+
+function hmac_sha1(key_str, message_str)
+{
+	// convert key & message to byte arrays
+	var key     = str_to_bytes(key_str);
+	var message = str_to_bytes(message_str);
+
+	// setup key
+	if ( key.length > 20 )
+	{
+		key = sha1(key); // keys longer than blocksize are shortened
+	}
+	while ( key.length < 20 )
+	{
+		key.push(0);
+	}
+
+	var opad = new Array(20), ipad = new Array(20);
+	for (var i = 0; i < 20; i++)
+	{
+		opad[i] = 0x5c ^ key[i];
+		ipad[i] = 0x36 ^ key[i];
+	};
+
+	return bytes_to_hex(sha1(opad.concat(sha1(ipad.concat(message)))));
+};
+
+function hmac_verify()
+{
+	var h = hmac_sha1('Jefe','what do ya want for nothing?');
+	return Boolean(h == 'effcdf6ae5eb2fa2d27416d5f184df9c259a7c79');
+	//return Boolean(hmac_sha1("a","b") == "6657855686823986c874362731139752014cb60b");
+}
+
+

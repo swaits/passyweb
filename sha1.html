@@ -9,7 +9,7 @@
 			function run()
 			{
 				sha1_profile();
-				if ( sha1_verify() )
+				if ( sha1_verify() && hmac_verify() )
 					document.getElementById('result').innerHTML = sha1_string("abcde");
 				else
 					document.getElementById('result').innerHTML = "Error!!!";
