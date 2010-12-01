@@ -1,9 +1,7 @@
-/*jslint onevar: true, undef: true, nomen: true, regexp: true, newcap: true, immed: true, strict: true */
+/*jslint onevar: true, undef: true, nomen: true, regexp: true, newcap: true, immed: true */
 
-SHA1 = (function() // SHA1 "namespace"
+var SHA1 = (function() // SHA1 "namespace"
 {
-	"use strict";
-
 	var hextab = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"];
 
 	function char_code_to_bytes(code)
@@ -199,23 +197,23 @@ SHA1 = (function() // SHA1 "namespace"
 			message = str_to_bytes(message_str),
 
 			// our pads
-			opad = new Array(20),
-			ipad = new Array(20),
+			opad = new Array(64),
+			ipad = new Array(64),
 
 			// misc
 			i;
 
 		// setup key
-		if (key.length > 20)
+		if (key.length > 64)
 		{
 			key = sha1(key); // keys longer than blocksize are shortened
 		}
-		while (key.length < 20)
+		while (key.length < 64)
 		{
 			key.push(0);
 		}
 
-		for (i=0; i<20; i++)
+		for (i=0; i<64; i++)
 		{
 			opad[i] = 0x5c ^ key[i];
 			ipad[i] = 0x36 ^ key[i];
@@ -226,16 +224,22 @@ SHA1 = (function() // SHA1 "namespace"
 
 	function hmac_verify()
 	{
-		var h = hmac_sha1('Jefe','what do ya want for nothing?');
-		return Boolean(h == 'effcdf6ae5eb2fa2d27416d5f184df9c259a7c79');
-		//return Boolean(hmac_sha1("a","b") == "6657855686823986c874362731139752014cb60b");
+		return Boolean(
+			hmac_sha1('Jefe','what do ya want for nothing?') == 'effcdf6ae5eb2fa2d27416d5f184df9c259a7c79' &&
+			hmac_sha1("a","b") == "6657855686823986c874362731139752014cb60b"
+			);
 	}
 
-	// our exports
+	function verify()
+	{
+		return Boolean(sha1_verify() && hmac_verify());
+	}
+
+	// our exported symbols
 	return {
 		hash:sha1_string,
 		hmac:hmac_sha1,
-		test:hmac_verify
+		test:verify
 	};
 
 }()); // SHA1 "namespace"
