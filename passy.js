@@ -1,5 +1,5 @@
 /*
- * sha1.js - implementation of SHA-1 hash and HMAC algorithms in javascript, by Stephen Waits
+ * passy.js - implementation of passy algorithm in javascript, by Stephen Waits
  *
  * The MIT License
  * 

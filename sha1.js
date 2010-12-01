@@ -1,5 +1,5 @@
 /*
- * passy.js - implementation of passy algorithm in javascript, by Stephen Waits
+ * sha1.js - implementation of SHA-1 hash and HMAC algorithms in javascript, by Stephen Waits
  *
  * The MIT License
  * 
@@ -28,8 +28,10 @@
 
 var SHA1 = (function() // SHA1 "namespace"
 {
+	// table for doing number to hex string conversion
 	var hextab = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"];
 
+	// convert one character to an array of bytes
 	function char_code_to_bytes(code)
 	{
 		var result = [];
@@ -41,6 +43,8 @@ var SHA1 = (function() // SHA1 "namespace"
 		return result;
 	}
 
+	// convert a string to an array of bytes
+	// note: multi-byte characters are included
 	function str_to_bytes(str)
 	{
 		var result = [], i, len = str.length;
@@ -51,6 +55,7 @@ var SHA1 = (function() // SHA1 "namespace"
 		return result;
 	}
 
+	// take a number and return an array of 8 bytes representing a big-endian int64
 	function num_to_big_endian_64(num)
 	{
 		return [
@@ -65,6 +70,7 @@ var SHA1 = (function() // SHA1 "namespace"
 			];
 	}
 
+	// convert an array of bytes to an array of int32 (big-endian)
 	function bytes_to_big_endian_32(array)
 	{
 		var result = [], i, len = array.length;
@@ -75,6 +81,7 @@ var SHA1 = (function() // SHA1 "namespace"
 		return result;
 	}
 
+	// take an array of bytes and return the hex string
 	function bytes_to_hex(x)
 	{
 		var
@@ -89,6 +96,10 @@ var SHA1 = (function() // SHA1 "namespace"
 		return result;
 	}
 
+	// compute SHA1 hash
+	//
+	// input is an array of bytes (big-endian order)
+	// returns an array of 20 bytes
 	function sha1(byte_array)
 	{
 		var
@@ -192,29 +203,20 @@ var SHA1 = (function() // SHA1 "namespace"
 			]; // note: returning this as a byte array is quite expensive!
 	}
 
+	// compute SHA1
+	//
+	// input is a string
+	// returns a hex string
 	function sha1_string(str)
 	{
 		// get text into byte array, hash, convert to hex string
 		return bytes_to_hex(sha1(str_to_bytes(str)));
 	}
 
-	function sha1_verify()
-	{
-		return Boolean(
-				(sha1_string("The quick brown fox jumps over the lazy dog") == "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12") &&
-				(sha1_string("")                                            == "da39a3ee5e6b4b0d3255bfef95601890afd80709")
-				);
-	}
-
-	function sha1_profile()
-	{
-		var data = [1,2,3,4,5,6], i;
-		for (i=0; i<5000; i++)
-		{
-			sha1(data);
-		}
-	}
-
+	// compute HMAC-SHA1
+	//
+	// key_str and message_str are both strings
+	// returns a hex string
 	function hmac_sha1(key_str, message_str)
 	{
 		var
@@ -239,29 +241,55 @@ var SHA1 = (function() // SHA1 "namespace"
 			key.push(0);
 		}
 
+		// setup pads
 		for (i=0; i<64; i++)
 		{
 			opad[i] = 0x5c ^ key[i];
 			ipad[i] = 0x36 ^ key[i];
 		}
 
+		// calculate HMAC
 		return bytes_to_hex(sha1(opad.concat(sha1(ipad.concat(message)))));
 	}
 
-	function hmac_verify()
+
+	//
+	// verification code
+	//
+	function byte_string(x,size)
 	{
-		return Boolean(
-			hmac_sha1('Jefe','what do ya want for nothing?') == 'effcdf6ae5eb2fa2d27416d5f184df9c259a7c79' &&
-			hmac_sha1("a","b") == "6657855686823986c874362731139752014cb60b"
-			);
+		var a = "", s = String.fromCharCode(x);
+		for (var i=0; i<size; i++)
+		{
+			a += s;
+		};
+		return a;
 	}
 
+	// test HMAC-SHA1 with known test vectors
 	function verify()
 	{
-		return Boolean(sha1_verify() && hmac_verify());
+		// testing HMAC-SHA1 also naturally tests SHA1
+		var tests = [
+				[ 'Jefe','what do ya want for nothing?', 'effcdf6ae5eb2fa2d27416d5f184df9c259a7c79' ],
+				[ byte_string(0xb,20),'Hi There','b617318655057264e28bc0b6fb378c8ef146be00' ],
+				[ byte_string(0xaa,20),byte_string(0xdd,50), '125d7342b9ac11cd91a39af48aa17b4f63f175d3' ],
+				[ byte_string(0xc,20),'Test With Truncation','4c1a03424b55e07fe7f27be1d58bb9324a9a5a04' ],
+				[ byte_string(0xaa,80),'Test Using Larger Than Block-Size Key - Hash Key First','aa4ae5e15272d00e95705637ce8a3b55ed402112' ],
+				[ byte_string(0xaa,80),'Test Using Larger Than Block-Size Key and Larger Than One Block-Size Data','e8e99d0f45237d786d6bbaa7965c7808bbff1a91' ],
+			];
+
+		for (var i = 0; i < tests.length; i++) {
+			if (hmac_sha1(tests[i][0],tests[i][1]) != tests[i][2]) { return false; }
+		};
+
+		return true;
 	}
 
-	// our exported symbols
+
+	//
+	// exported symbols
+	//
 	return {
 		hash:sha1_string,
 		hmac:hmac_sha1,
