@@ -276,7 +276,7 @@ var SHA1 = (function() // SHA1 "namespace"
 				[ byte_string(0xaa,20),byte_string(0xdd,50), '125d7342b9ac11cd91a39af48aa17b4f63f175d3' ],
 				[ byte_string(0xc,20),'Test With Truncation','4c1a03424b55e07fe7f27be1d58bb9324a9a5a04' ],
 				[ byte_string(0xaa,80),'Test Using Larger Than Block-Size Key - Hash Key First','aa4ae5e15272d00e95705637ce8a3b55ed402112' ],
-				[ byte_string(0xaa,80),'Test Using Larger Than Block-Size Key and Larger Than One Block-Size Data','e8e99d0f45237d786d6bbaa7965c7808bbff1a91' ],
+				[ byte_string(0xaa,80),'Test Using Larger Than Block-Size Key and Larger Than One Block-Size Data','e8e99d0f45237d786d6bbaa7965c7808bbff1a91' ]
 			];
 
 		for (var i = 0; i < tests.length; i++) {
