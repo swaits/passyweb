@@ -256,6 +256,8 @@ var SHA1 = (function() // SHA1 "namespace"
 	//
 	// verification code
 	//
+	
+	// create a byte string of size number of x's
 	function byte_string(x,size)
 	{
 		var a = "", s = String.fromCharCode(x);
