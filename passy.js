@@ -35,70 +35,49 @@ var passy = function(text,secret)
 	/*
 	 * function to make a password out of a hexadecimal string "0123456789abcdef".
 	 *
-	 * + substitutes symbols for every other digit [0-9]
-	 * + capitalize every other alpha [a-f]
+	 * + substitutes one of 32 symbols for every two hex digits (octet)
 	 *
 	 */
 	var passify = function(hexstr)
 	{
 		var 
 			// lookup table to convert a single character to a symbol
-			symtab = { "1":"!", "2":"@", "3":"#", "4":"$", "5":"%", "6":"^", "7":"&", "8":"*", "9":"(", "0":")" },
+			symtab = [
+				"A", "B", "C", "D", "E", "F", "G", "H",
+				"a", "b", "c", "d", "e", "f", "g", "h",
+				"2", "3", "4", "5", "6", "7", "8", "9",
+				"#", "$", "%", "*", "+", "=", "@", "?",
+			],
+
+			// lookup table to convert a single hex character to its decimal equivalent
+			hex2int = {
+				"0":0, "1":1,  "2":2,  "3":3,  "4":4,  "5":5,  "6":6,  "7":7,
+				"8":8, "9":9, "a":10, "b":11, "c":12, "d":13, "e":14, "f":15
+			},
+			
+			// our result
+			result = "",
 
 			// misc
-			odd = true, i;
+			i, octet;
 
-		// convert every other numerical character to a symbol
-		for(i=0;i<hexstr.length;++i)
+		// convert each octet in the hex string to one of our symbols
+		for(i=0;i<hexstr.length/2;++i)
 		{
-			// is this a digit-character?
-			if ( /[0-9]/.test(hexstr[i]) )
-			{
-				if ( odd )
-				{
-					// substitute symbol for odd digit-characters, leave even digit-characters alone!
-					hexstr = hexstr.slice(0,i) + symtab[hexstr[i]] + hexstr.slice(i+1,hexstr.length);
-				}
-
-				// flip odd toggle
-				odd = !odd;
-			}
-		}
-
-		// alternate uppercase/lowercase for alpha characters
-		odd = true;
-		for(i=0;i<hexstr.length;++i)
-		{
-			// is this an alpha-character?
-			if ( /[a-f]/i.test(hexstr[i]) )
-			{
-				// set odd alpha-characters to uppercase, and even alpha-characters to lowercase
-				hexstr = 
-					hexstr.slice(0,i) + 
-					( odd ? hexstr[i].toUpperCase() : hexstr[i].toLowerCase()) + 
-					hexstr.slice(i+1,hexstr.length);
-
-				// flip odd toggle
-				odd = !odd;
-			}
+			octet = hex2int[hexstr[i*2]]*16 + hex2int[hexstr[i*2+1]];
+			result = result + symtab[ octet % symtab.length ];	
 		}
 
 		// finished
-		return hexstr;
+		return result;
 	};
 
 	// get hmac
-	var hmac = SHA1.hmac(secret,text);
+	var hmac = (SHA1.hmac(secret,text)).toLowerCase();
 
 	// split into four 10 character strings and "passify", and return the array
 	// include the unpassified versions afterward
 	return [
-		passify(hmac.slice( 0,10)),
-		passify(hmac.slice(10,20)),
-		passify(hmac.slice(20,30)),
-		passify(hmac.slice(30,40)),
-		hmac.slice( 0,10),
-		hmac.slice(10,20),
-		hmac.slice(20,30),
-		hmac.slice(30,40)];
+		passify(hmac.slice( 0,24)),
+		hmac.slice( 0,10) ];
 };
