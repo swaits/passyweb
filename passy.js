@@ -46,7 +46,7 @@ var passy = function(text,secret)
 				"A", "B", "C", "D", "E", "F", "G", "H",
 				"a", "b", "c", "d", "e", "f", "g", "h",
 				"2", "3", "4", "5", "6", "7", "8", "9",
-				"#", "$", "%", "*", "+", "=", "@", "?",
+				"#", "$", "%", "*", "+", "=", "@", "?"
 			],
 
 			// lookup table to convert a single hex character to its decimal equivalent
