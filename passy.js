@@ -30,54 +30,47 @@
  * Given a "text" (i.e. "amazon.com") and a "secret" (i.e. "mypassword") return an
  * array of four Passy'fied passwords.
  */
-var passy = function(text,secret)
-{
-	/*
-	 * function to make a password out of a hexadecimal string "0123456789abcdef".
-	 *
-	 * + substitutes one of 32 symbols for every two hex digits (octet)
-	 *
-	 */
-	var passify = function(hexstr)
-	{
-		var 
-			// lookup table to convert a single character to a symbol
-			symtab = [
-				"A", "B", "C", "D", "E", "F", "G", "H",
-				"a", "b", "c", "d", "e", "f", "g", "h",
-				"2", "3", "4", "5", "6", "7", "8", "9",
-				"#", "$", "%", "*", "+", "=", "@", "?"
-			],
-
-			// lookup table to convert a single hex character to its decimal equivalent
-			hex2int = {
-				"0":0, "1":1,  "2":2,  "3":3,  "4":4,  "5":5,  "6":6,  "7":7,
-				"8":8, "9":9, "a":10, "b":11, "c":12, "d":13, "e":14, "f":15
-			},
-			
-			// our result
-			result = "",
-
-			// misc
-			i, octet;
-
-		// convert each octet in the hex string to one of our symbols
-		for(i=0;i<hexstr.length/2;++i)
-		{
-			octet = hex2int[hexstr[i*2]]*16 + hex2int[hexstr[i*2+1]];
-			result = result + symtab[ octet % symtab.length ];	
-		}
-
-		// finished
-		return result;
-	};
-
-	// get hmac
-	var hmac = (SHA1.hmac(secret,text)).toLowerCase();
-
-	// split into four 10 character strings and "passify", and return the array
-	// include the unpassified versions afterward
-	return [
-		passify(hmac.slice( 0,24)),
-		hmac.slice( 0,10) ];
+var passy;
+passy = function(text, secret) {
+  var encode, hex2passy, symtab;
+  symtab = "ABCDEFGHabcdefgh23456789#$%*+=@?";
+  hex2passy = function(x) {
+    return symtab[parseInt(x, 16) % symtab.length];
+  };
+  encode = function(str) {
+    var i;
+    return ((function() {
+      var _ref, _results;
+      _results = [];
+      for (i = 0, _ref = str.length; (0 <= _ref ? i < _ref : i > _ref); i += 2) {
+        _results.push(hex2passy(str.substr(i, 2)));
+      }
+      return _results;
+    })()).join("");
+  };
+  return [encode(SHA1.hmac(secret, text).substr(0, 24)), SHA1.hmac(secret, text).substr(0, 10)];
 };
+
+
+/* This is the source CoffeeScript code:
+
+passy = (text,secret) ->
+
+  # our symbol table for passy
+  symtab = "ABCDEFGHabcdefgh23456789#$%*+=@?"
+
+  # convert a hex string to a single passy character
+  # * modulo and lookup in symtab string
+  hex2passy = (x) -> symtab[parseInt(x,16) % symtab.length]
+
+  # encode a hex string into a passy string
+  # 1. split a string into two character strings (octets)
+  # 2. encode each two char string (octet) into a single passy char
+  # 3. join resulting array of passy chars into a single passy string
+  encode = (str) ->
+    (hex2passy(str.substr(i,2)) for i in [0...str.length] by 2).join("")
+
+  # return the first 12 characters of the passy string and 10 characters of hmac
+  [encode(SHA1.hmac(secret,text).substr(0,24)), SHA1.hmac(secret,text).substr(0,10)]
+
+*/
