@@ -1,11 +1,7 @@
 <html>
 	<head>
-		<script type='text/javascript' src='sha1.js'></script>
 		<script type='text/javascript' src='passy.js'></script>
 		<script type='text/javascript'>
-
-			// TODO: do something if this test actually fails
-			SHA1.test();
 
 			var password_timer=0;
 			function delayed_select(target)
@@ -55,10 +51,10 @@
 			<input type='password' id='password' onkeyup='update_passy()'><br/>
 			<hr/>
 			Site Password:<br/>
-			<input type='text' id='result' readonly onfocus='delayed_select(this)'>
+			<input type='text' size=40 id='result' readonly onfocus='delayed_select(this)'>
 			<br/>
 			Site Password (old version):<br/>
-			<input type='text' id='result_old' readonly onfocus='delayed_select(this)'>
+			<input type='text' size=40 id='result_old' readonly onfocus='delayed_select(this)'>
 		</form>
 	</body>
 </html>
