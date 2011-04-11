@@ -259,9 +259,9 @@ passy = (text, secret) ->
 
   # return an error if passy fails on this javascript
   return ["Error!","Error!"] unless  (
-    encode_passy(                "0123",                     "a") == "Gad6DdC2e3cD6dF937c82h5%" &&
-    encode_passy(    "ABab12!@CDcd34#$", "aB234SLKDJF(*#@jfsdk",) == "d+B8#@hh5CB%=Fef" &&
-    encode_passy("11111111111111111111", "00000000000000000000",) == "Fgh5bE?94A2chdhF"
+    encode_passy(                "0123",                    "a") == "Gad6DdC2e3cD6dF937c82h5%" &&
+    encode_passy(    "ABab12!@CDcd34#$", "aB234SLKDJF(*#@jfsdk") == "d+B8#@hh5CB%=Fef" &&
+    encode_passy("11111111111111111111", "00000000000000000000") == "Fgh5bE?94A2chdhF"
   )
 
   # return both new and old passy results (for now)
